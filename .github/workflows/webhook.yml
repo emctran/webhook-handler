@@ -1,17 +1,24 @@
-   name: Handle Webhook
-   on:
-     repository_dispatch:
-       types: [webhook-trigger]
+name: Handle Webhook
+on:
+  repository_dispatch:
+    types: [webhook-trigger]
 
-   jobs:
-     process-webhook:
-       runs-on: ubuntu-latest
-       steps:
-         - uses: actions/checkout@v2
-         
-         - name: Process Webhook
-           env:
-             API_KEY: ${{ secrets.API_KEY }}
-           run: |
-             echo "Processing webhook..."
-             # Your API call will go here
+jobs:
+  process-webhook:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      
+      - name: Process Webhook
+        env:
+          GUMLOOP_API_KEY: ${{ secrets.GUMLOOP_API_KEY }}
+          GUMLOOP_USER_ID: ${{ secrets.GUMLOOP_USER_ID }}
+          GUMLOOP_SAVED_ITEM_ID: ${{ secrets.GUMLOOP_SAVED_ITEM_ID }}
+        run: |
+          thread_id="${{ github.event.client_payload.thread_id }}"
+          
+          # Construct the Gumloop URL with environment variables
+          url="https://api.gumloop.com/api/v1/start_pipeline?api_key=${GUMLOOP_API_KEY}&user_id=${GUMLOOP_USER_ID}&saved_item_id=${GUMLOOP_SAVED_ITEM_ID}&pipeline_inputs=%5B%7B%22input_name%22%3A%22thread_id%22%2C%22value%22%3A%22${thread_id}%22%7D%5D"
+          
+          # Make the API call
+          curl -X GET "$url"
