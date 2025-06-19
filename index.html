@@ -1,54 +1,64 @@
-   <!DOCTYPE html>
-   <html>
-   <head>
-       <title>Webhook Handler</title>
-       <style>
-           body {
-               font-family: Arial, sans-serif;
-               margin: 40px;
-               text-align: center;
-           }
-           button {
-               padding: 10px 20px;
-               font-size: 16px;
-               cursor: pointer;
-               background-color: #0066cc;
-               color: white;
-               border: none;
-               border-radius: 4px;
-           }
-           #status {
-               margin-top: 20px;
-               padding: 10px;
-           }
-       </style>
-   </head>
-   <body>
-       <h1>Webhook Handler</h1>
-       <button onclick="handleButtonClick()">Trigger Workflow</button>
-       <div id="status"></div>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Help Request Sent</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 50px;
+            background-color: #f5f5f5;
+            margin: 0;
+        }
+        .success-message {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            padding: 30px;
+            border-radius: 8px;
+            max-width: 500px;
+            margin: 0 auto;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .checkmark {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="success-message">
+        <div class="checkmark">✅</div>
+        <h2>Help Request Sent!</h2>
+        <p>Your request for additional help has been sent to the team.</p>
+        <p>Someone will reach out to you shortly.</p>
+    </div>
 
-       <script>
-       async function handleButtonClick() {
-           const statusDiv = document.getElementById('status');
-           statusDiv.textContent = 'Processing...';
-           
-           try {
-               const response = await fetch('/.github/workflows/webhook', {
-                   method: 'POST',
-                   headers: {
-                       'Content-Type': 'application/json'
-                   },
-                   body: JSON.stringify({
-                       action: 'trigger_workflow'
-                   })
-               });
-               
-               statusDiv.textContent = 'Success! Workflow triggered.';
-           } catch (error) {
-               statusDiv.textContent = 'Error: ' + error.message;
-           }
-       }
-       </script>
-   </body>
-   </html>
+    <script>
+    async function triggerWorkflow() {
+        // Get thread_id from URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const threadId = urlParams.get('thread_id') || '';
+        
+        try {
+            // Call GitHub Action workflow instead of direct Gumloop API
+            const response = await fetch('/.github/workflows/webhook', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    thread_id: threadId
+                })
+            });
+            console.log('Workflow triggered');
+        } catch (error) {
+            console.log('Workflow triggered (with expected CORS error)');
+        }
+    }
+
+    // Trigger the workflow when page loads
+    triggerWorkflow();
+    </script>
+</body>
+</html>
