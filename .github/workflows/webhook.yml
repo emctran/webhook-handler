@@ -1,0 +1,17 @@
+   name: Handle Webhook
+   on:
+     repository_dispatch:
+       types: [webhook-trigger]
+
+   jobs:
+     process-webhook:
+       runs-on: ubuntu-latest
+       steps:
+         - uses: actions/checkout@v2
+         
+         - name: Process Webhook
+           env:
+             API_KEY: ${{ secrets.API_KEY }}
+           run: |
+             echo "Processing webhook..."
+             # Your API call will go here
